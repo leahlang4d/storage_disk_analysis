@@ -4,6 +4,11 @@
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{indentfirst}
+\graphicspath{ {images/} }
 
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
@@ -14,38 +19,99 @@
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
-\title{Your Paper}
-\author{You}
+\title{Storage Disk Analysis}
+\author{Taylor Futral, Sabrina Tsui, and Leah Langford\\ 
+UCSC Storage Systems Research Center\\ 
+tfutral@ucsc.edu, sctsu@ucsc.edu, llangfor@ucsc.edu}
 
 \begin{document}
 \maketitle
 
-\begin{abstract}
-Your abstract.
-\end{abstract}
+\section{Topic}
+Different Operating Systems have different access patterns and ways of dealing with the disk drive. The disk drive is a type of storage disk that is used to store data as explained in the background. The goal of this project is to use different types of forensics software to observe where each File System writes to the free list on a disk.\\  
+\indent The aim of this project is to analyze where (in terms of sectors and offsets) data is written on the free list, and where on disk that is. By looking at the physical locations in memory things are being written to, we hope to find places in the free list where files can potentially be hidden without being overwritten. The systems that this analysis will focus on are the FreeBSD operating system, the FAT file system (most likely within Linux OS), and the EXT2 file system (also can be found within a Linux OS). Each of these should reveal different patterns of accesses and hopefully will allow us to interpret which file system would be the best for hiding information in the free list.\\
+\indent To make this analysis we will be using Sleuth Kit which is a library that exists within Unix and Windows systems that allow for forensic analysis of computer systems. It is capable of parsing all the file systems that we are interested including EXT2, FAT and UFS. Assuming Sleuth Kit works with our hardware and virtual machines, it should be the perfect tool for the job. We plan to use VirtualBox as our virtual machine to host the operating systems containing the file systems of interest. This means that the parameters and settings for one set-up should match the set ups for the other systems too.\\
+\indent Our intention with this project is not only to learn where and how each operating system is writing to in the free list but also to learn more about the disk and file systems in general. This learning opportunity should be significantly helpful to improving our knowledge and command as computer science students.
 
-\section{Introduction}
+\section{Background}
+Storage Disks are mechanisms dedicated to storing data via electrical, optimal, magnetic, and mechanical manipulations to the disk itself. It is rotated in order to store said data in different segments of the disk. For the case of digital disk drives in the use of FAT file systems, the disk is partitioned into multiple “blocks” or clusters (as seen in Figure 1). 
 
-Your introduction goes here! Some examples of commonly used commands and features are listed below, to help you get started. If you have a question, please use the help menu (``?'') on the top bar to search for help or ask us a question. 
-
-\section{Some examples to get started}
-
-\subsection{How to include Figures}
-
-First you have to upload the image file from your computer using the upload link the project menu. Then use the includegraphics command to include it in your document. Use the figure environment and the caption command to add a number and a caption to your figure. See the code for Figure \ref{fig:frog} in this section for an example.
-
-\begin{figure}
-\centering
-\includegraphics[width=0.3\textwidth]{frog.jpg}
-\caption{\label{fig:frog}This frog was uploaded via the project menu.}
+\begin{figure}[H]
+\caption{Image of disk partitioned into blocks}
+\includegraphics[scale=0.7]{hard-disk-structure}
 \end{figure}
 
+\begin{comment}
+\begin{figure}
+\includegraphics[width=0.3\textwidth]{hard-disk-structure.png}
+\caption{\label{fig:hard disk}Disk partitioned into blocks or "clusters".}
+\end{figure}
+\end{comment}
+
+
+A free list is a data structure that allows for dynamic memory allocation. Typically this is created and maintained by having each node in a free list point to the next however sometimes the term “free list” is used inappropriately and refers to free memory in general. The significance of the free list for this project is that the different file system’s patterns of accessing it will be observed.\\
+
+
+Common types of file systems:
+\begin{itemize}
+\item EXT2 (has bit map, where 1 represents a write, and 0 represents a free spot in memory)
+\item NTSF
+\item ZFS
+\item UFS (contained on versions of FreeBSD)
+\item FAT file (contained on versions of Linux)
+\item HFS+ / APFS 
+\end{itemize}
+
+
+Sleuth Kit is an open source forensic analysis command line tool. Sleuth Kit can be used to determine operations and accesses within a file system. This functionality can be used to observe where in the free list and on the disk that memory is being written to. 
+
+\section{Procedure}
+\subsection{Part 1}
+\begin{enumerate}
+\item Write test files to memory and find where the data is written to on the disk and free list on these operating systems:\\
+\begin{itemize}
+\item FreeBSD → UFS/ZFS
+\item Linux → FAT file system
+\item Linux → EXT2
+\end{itemize}
+\item Find patterns of where things are written (understand where the computer “decides” to write things).
+\item Find spots in the free list where writing there would not be likely to overwrite original data.
+\end{enumerate}
+\subsection{Part 2}
+\begin{enumerate}
+\item Compare where the data is written with those operating systems
+\begin{itemize}
+\item Are there spots in the free list that are common to both file systems?
+\end{itemize}
+\end{enumerate}
+
+\section{Schedule}
+\textbf{\underline{Winter Quarter}}\\
+Week 1: Read Disk Tape and Storage Analysis Cost Models, Steganalysis, IEEE Xplore\\
+Week 2: Read Usenix paper\\
+Week 3: Read up on Sleuth kit and test it\\
+Week 4: Read Hard Drive Clusters and File Allocation\\
+Week 5: Read up on Ext2 and FreeBSD\\
+Week 7: Set up environment and design test cases\\
+Week 8: Run the test on the disk where the OS is writing for FreeBSD\\
+Week 9: Read up on NTSF, HFS+ / APFS and FAT file system\\
+Week 10: Read section 1.3 and 3.2 of Modern Operating Systems\\
+
+\textbf{\underline{Spring Quarter}}\\
+Week 1: Read section 3.4, 3.5.8 and 3.5.9 of Modern Operating Systems\\
+Week 2: Read section 4.1 Files of Modern Operating Systems\\
+Week 3: Read section 4.3.7 and 4.4 of MOS\\
+Week 4: Run and the collect data from the FAT file system writes\\
+Week 5: Read section 5.5 of MOS and analyze data from FAT file system test\\
+Week 6: Run the test on the disk where the OS is writing for Linux’s EXT2 file system\\
+Week 7: Analyze and record the data from the Linux EXT2 file system writes\\
+Week 8: Draw conclusions and start write up from tests\\
+Week 9: compile and write results in a presentation, paper or poster format\\
+Week 10: edit and revise writing\\
+
+\begin{comment}
 \subsection{How to add Comments}
 
-Comments can be added to your project by clicking on the comment icon in the toolbar above. % * <john.hammersley@gmail.com> 2016-07-03T09:54:16.211Z:
-%
-% Here's an example comment!
-%
 To reply to a comment, simply click the reply button in the lower right corner of the comment, and you can close them when you're done.
 
 Comments can also be added to the margins of the compiled PDF using the todo command\todo{Here's a comment in the margin!}, as shown in the example on the right. You can also add inline comments:
@@ -99,8 +165,9 @@ You can upload a \verb|.bib| file containing your BibTeX entries, created with J
 You can find a \href{https://www.overleaf.com/help/97-how-to-include-a-bibliography-using-bibtex}{video tutorial here} to learn more about BibTeX.
 
 We hope you find Overleaf useful, and please let us know if you have any feedback using the help menu above --- or use the contact form at \url{https://www.overleaf.com/contact}!
-
+\fi%----------------to here---------just incase we need it----------------
+\end{comment}
+\nocite{*}
 \bibliographystyle{alpha}
-\bibliography{sample}
-
+\bibliography{storage}
 \end{document}
